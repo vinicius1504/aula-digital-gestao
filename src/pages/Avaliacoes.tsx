@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,7 +67,7 @@ const Avaliacoes = () => {
           ...aluno,
           notas: novasNotas,
           media: novaMedia,
-          status: novaMedia >= 6 ? "aprovado" : "reprovado",
+          status: novaMedia >= 6 ? "aprovado" as const : "reprovado" as const,
         };
       }
       return aluno;
