@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import StatusBadge from "@/components/shared/StatusBadge";
 import { toast } from "@/components/ui/sonner";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
+import { Edit, Trash } from "lucide-react";
+import EditAvaliacaoModal from "@/components/modal/EditAvaliacaoModal";
 
 interface Aluno {
   id: number;
@@ -47,6 +51,10 @@ const Avaliacoes = () => {
   const [turma, setTurma] = useState<string>("3B");
   const [materia, setMateria] = useState<string>("matematica");
   const [alunos, setAlunos] = useState<Aluno[]>(mockAlunos);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteAlunoId, setDeleteAlunoId] = useState<number | null>(null);
 
   const calcularMedia = (aluno: Aluno): number => {
     const { bim1, bim2, bim3, bim4, nt } = aluno.notas;
@@ -86,6 +94,31 @@ const Avaliacoes = () => {
 
   const handleExportar = () => {
     toast.success("Relatório exportado com sucesso!");
+  };
+  
+  const handleEdit = (aluno: Aluno) => {
+    setSelectedAluno(aluno);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setDeleteAlunoId(id);
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = () => {
+    if (deleteAlunoId !== null) {
+      setAlunos(alunos.filter((a) => a.id !== deleteAlunoId));
+      toast.success("Aluno removido da avaliação com sucesso!");
+      setDeleteAlunoId(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleUpdateAluno = (updatedAluno: Aluno) => {
+    setAlunos(alunos.map(aluno => 
+      aluno.id === updatedAluno.id ? updatedAluno : aluno
+    ));
   };
 
   return (
@@ -146,7 +179,7 @@ const Avaliacoes = () => {
                 <th className="text-center p-4 font-medium text-muted-foreground">NT</th>
                 <th className="text-center p-4 font-medium text-muted-foreground">MÉDIA</th>
                 <th className="text-center p-4 font-medium text-muted-foreground">STATUS</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">SALVAR</th>
+                <th className="text-center p-4 font-medium text-muted-foreground">AÇÕES</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -168,20 +201,28 @@ const Avaliacoes = () => {
                   <td className="p-4 text-center font-bold">{aluno.media.toFixed(1)}</td>
                   <td className="p-4 text-center">
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      aluno.status === "aprovado" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      aluno.status === "aprovado" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
                     }`}>
                       {aluno.status === "aprovado" ? "Aprovado" : "Reprovado"}
                     </span>
                   </td>
                   <td className="p-4 text-center">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="border-green-500 text-green-600 hover:bg-green-50"
-                      onClick={() => handleSalvar(aluno.id)}
-                    >
-                      Salvar
-                    </Button>
+                    <div className="flex justify-center space-x-2">
+                      <Button 
+                        size="sm"
+                        variant="ghost" 
+                        onClick={() => handleEdit(aluno)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm"
+                        variant="ghost" 
+                        onClick={() => handleDelete(aluno.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -197,6 +238,23 @@ const Avaliacoes = () => {
           </Button>
         </div>
       </Card>
+      
+      {/* Edit Modal */}
+      <EditAvaliacaoModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aluno={selectedAluno}
+        onSave={handleUpdateAluno}
+      />
+      
+      {/* Delete Confirmation */}
+      <DeleteConfirmation
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={confirmDelete}
+        title="Remover aluno"
+        description="Tem certeza que deseja remover este aluno da avaliação? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 };

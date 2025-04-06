@@ -35,6 +35,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
+import EditAlunoModal from "@/components/modal/EditAlunoModal";
 
 interface Aluno {
   id: number;
@@ -62,6 +64,10 @@ const Alunos = () => {
   const [alunos, setAlunos] = useState<Aluno[]>(mockAlunos);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
+  const [deleteAlunoId, setDeleteAlunoId] = useState<number | null>(null);
 
   const form = useForm<AlunoFormValues>({
     resolver: zodResolver(alunoSchema),
@@ -82,13 +88,29 @@ const Alunos = () => {
   const alunosInativos = alunos.filter((a) => a.status === "inativo").length;
   const alunosPendentes = 0;
 
-  const handleEdit = (id: number) => {
-    toast.info(`Editar aluno #${id}`);
+  const handleEdit = (aluno: Aluno) => {
+    setSelectedAluno(aluno);
+    setEditModalOpen(true);
   };
 
   const handleDelete = (id: number) => {
-    toast.success(`Aluno #${id} removido com sucesso`);
-    setAlunos(alunos.filter((a) => a.id !== id));
+    setDeleteAlunoId(id);
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = () => {
+    if (deleteAlunoId !== null) {
+      setAlunos(alunos.filter((a) => a.id !== deleteAlunoId));
+      toast.success(`Aluno removido com sucesso`);
+      setDeleteAlunoId(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleUpdateAluno = (updatedAluno: Aluno) => {
+    setAlunos(alunos.map(aluno => 
+      aluno.id === updatedAluno.id ? updatedAluno : aluno
+    ));
   };
 
   const onSubmit = (values: AlunoFormValues) => {
@@ -120,7 +142,7 @@ const Alunos = () => {
       header: "Ações",
       render: (aluno: Aluno) => (
         <div className="flex space-x-2">
-          <Button variant="ghost" size="icon" onClick={() => handleEdit(aluno.id)}>
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(aluno)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" onClick={() => handleDelete(aluno.id)}>
@@ -245,6 +267,23 @@ const Alunos = () => {
           keyExtractor={(aluno) => aluno.id}
         />
       </Card>
+      
+      {/* Edit Modal */}
+      <EditAlunoModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aluno={selectedAluno}
+        onSave={handleUpdateAluno}
+      />
+      
+      {/* Delete Confirmation */}
+      <DeleteConfirmation
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={confirmDelete}
+        title="Excluir aluno"
+        description="Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 };

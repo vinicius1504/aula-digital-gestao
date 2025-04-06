@@ -4,10 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
+import { useTheme } from "@/components/theme-provider";
 
 const Configuracoes = () => {
+  const { theme, setTheme } = useTheme();
+  
   const handleSalvar = () => {
     toast.success("Configurações salvas com sucesso!");
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   return (
@@ -67,7 +74,10 @@ const Configuracoes = () => {
                     Alternar entre tema claro e escuro
                   </p>
                 </div>
-                <Switch />
+                <Switch 
+                  checked={theme === "dark"} 
+                  onCheckedChange={toggleTheme} 
+                />
               </div>
 
               <div className="flex items-center justify-between">

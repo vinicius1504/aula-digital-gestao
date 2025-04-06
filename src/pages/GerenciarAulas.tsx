@@ -36,6 +36,8 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
+import EditAulaModal from "@/components/modal/EditAulaModal";
 
 interface Aula {
   id: number;
@@ -68,6 +70,10 @@ const GerenciarAulas = () => {
   const [aulas, setAulas] = useState<Aula[]>(mockAulas);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [open, setOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAula, setSelectedAula] = useState<Aula | null>(null);
+  const [deleteAulaId, setDeleteAulaId] = useState<number | null>(null);
   
   const form = useForm<AulaFormValues>({
     resolver: zodResolver(aulaSchema),
@@ -79,13 +85,29 @@ const GerenciarAulas = () => {
     },
   });
   
-  const handleEdit = (id: number) => {
-    toast.info(`Editar aula #${id}`);
+  const handleEdit = (aula: Aula) => {
+    setSelectedAula(aula);
+    setEditModalOpen(true);
   };
 
   const handleDelete = (id: number) => {
-    setAulas(aulas.filter((a) => a.id !== id));
-    toast.success("Aula removida com sucesso!");
+    setDeleteAulaId(id);
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = () => {
+    if (deleteAulaId !== null) {
+      setAulas(aulas.filter((a) => a.id !== deleteAulaId));
+      toast.success("Aula removida com sucesso!");
+      setDeleteAulaId(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleUpdateAula = (updatedAula: Aula) => {
+    setAulas(aulas.map(aula => 
+      aula.id === updatedAula.id ? updatedAula : aula
+    ));
   };
   
   const onSubmit = (values: AulaFormValues) => {
@@ -114,7 +136,7 @@ const GerenciarAulas = () => {
       render: (aula: Aula) => (
         <div className="flex flex-wrap gap-1">
           {aula.datas.map((data, i) => (
-            <span key={i} className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+            <span key={i} className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs font-medium px-2.5 py-0.5 rounded">
               {data}
             </span>
           ))}
@@ -126,7 +148,7 @@ const GerenciarAulas = () => {
       header: "AÇÕES",
       render: (aula: Aula) => (
         <div className="flex space-x-2">
-          <Button variant="ghost" size="icon" onClick={() => handleEdit(aula.id)}>
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(aula)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" onClick={() => handleDelete(aula.id)}>
@@ -262,6 +284,23 @@ const GerenciarAulas = () => {
           />
         </CardContent>
       </Card>
+      
+      {/* Edit Modal */}
+      <EditAulaModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aula={selectedAula}
+        onSave={handleUpdateAula}
+      />
+      
+      {/* Delete Confirmation */}
+      <DeleteConfirmation
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={confirmDelete}
+        title="Excluir aula"
+        description="Tem certeza que deseja excluir esta aula? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 };
