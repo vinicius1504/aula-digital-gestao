@@ -48,72 +48,127 @@ const Calendario = () => {
     }
   };
 
+  // Agrupar eventos por categoria para a barra lateral
+  const eventosRecentes = [...eventos].sort((a, b) => 
+    new Date(a.data).getTime() - new Date(b.data).getTime()
+  );
+
+  const eventosPorTipo = {
+    aula: eventos.filter(e => e.tipo === 'aula'),
+    avaliacao: eventos.filter(e => e.tipo === 'avaliacao'),
+    reuniao: eventos.filter(e => e.tipo === 'reuniao'),
+  };
+
   return (
     <div className="animate-fade-in">
       <h1 className="page-title">Calendário</h1>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center text-2xl">
-            {MONTHS[mesAtual]} {anoAtual}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-7 gap-1">
-            {/* Cabeçalho dos dias da semana */}
-            {DAYS.map((dia, i) => (
-              <div key={i} className="py-2 text-center font-medium text-sm">
-                {dia}
-              </div>
-            ))}
-            
-            {/* Dias do mês */}
-            {dias.map((data, i) => (
-              <div key={i} className={`border rounded-md min-h-[100px] ${
-                data.dia === 0 ? 'bg-gray-50' : 'hover:bg-gray-50'
-              }`}>
-                {data.dia > 0 && (
-                  <>
-                    <div className="p-2 text-right font-medium">
-                      {data.dia}
-                    </div>
-                    <div className="px-1 space-y-1">
-                      {data.eventos.map((evento, j) => (
-                        <div 
-                          key={j} 
-                          className={`px-2 py-1 text-xs rounded truncate ${getEventColor(evento.tipo)}`}
-                          title={evento.titulo}
-                        >
-                          {evento.titulo}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-2xl">
+                {MONTHS[mesAtual]} {anoAtual}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-7 gap-1">
+                {/* Cabeçalho dos dias da semana */}
+                {DAYS.map((dia, i) => (
+                  <div key={i} className="py-2 text-center font-medium text-sm">
+                    {dia}
+                  </div>
+                ))}
+                
+                {/* Dias do mês */}
+                {dias.map((data, i) => (
+                  <div key={i} className={`border rounded-md min-h-[100px] ${
+                    data.dia === 0 ? 'bg-gray-50' : 'hover:bg-gray-50'
+                  }`}>
+                    {data.dia > 0 && (
+                      <>
+                        <div className="p-2 text-right font-medium">
+                          {data.dia}
                         </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+                        <div className="px-1 space-y-1">
+                          {data.eventos.map((evento, j) => (
+                            <div 
+                              key={j} 
+                              className={`px-2 py-1 text-xs rounded truncate ${getEventColor(evento.tipo)}`}
+                              title={evento.titulo}
+                            >
+                              {evento.titulo}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Próximos Eventos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {eventos.map((evento, i) => (
-                <li key={i} className="border-b pb-2 last:border-0">
-                  <p className="font-medium">{evento.titulo}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(evento.data).toLocaleDateString('pt-BR')}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Próximos Eventos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {eventosRecentes.map((evento, i) => (
+                  <li key={i} className="border-b pb-2 last:border-0">
+                    <p className="font-medium">{evento.titulo}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(evento.data).toLocaleDateString('pt-BR')}
+                    </p>
+                    <span className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${getEventColor(evento.tipo)}`}>
+                      {evento.tipo === 'aula' ? 'Aula' : 
+                       evento.tipo === 'avaliacao' ? 'Avaliação' : 'Reunião'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Aulas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {eventosPorTipo.aula.map((evento, i) => (
+                  <li key={i} className="text-sm">
+                    <span className="font-medium">{evento.titulo}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {new Date(evento.data).toLocaleDateString('pt-BR')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Avaliações</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {eventosPorTipo.avaliacao.map((evento, i) => (
+                  <li key={i} className="text-sm">
+                    <span className="font-medium">{evento.titulo}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {new Date(evento.data).toLocaleDateString('pt-BR')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
