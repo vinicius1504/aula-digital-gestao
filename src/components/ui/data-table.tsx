@@ -38,10 +38,10 @@ function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-border">
+        <tbody className="divide-y divide-border dark:bg-background">
           {data.length > 0 ? (
             data.map((item) => (
-              <tr key={keyExtractor(item)} className="hover:bg-muted/50">
+              <tr key={keyExtractor(item)} className="hover:bg-muted/50 transition-colors duration-200">
                 {columns.map((column) => (
                   <td
                     key={`${keyExtractor(item)}-${column.key}`}

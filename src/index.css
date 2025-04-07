@@ -138,7 +138,28 @@
   }
   
   .action-button {
-    @apply inline-flex items-center text-muted-foreground hover:text-foreground cursor-pointer;
+    @apply inline-flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200;
+  }
+
+  /* Animation classes */
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/20;
+  }
+  
+  .spin-on-hover:hover {
+    animation: spin 1s ease-in-out;
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
