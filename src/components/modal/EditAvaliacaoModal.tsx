@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 interface Aluno {
@@ -21,6 +22,7 @@ interface Aluno {
     bim4: number;
     nt: number;
   };
+  usarNT: boolean;
   media: number;
   status: "aprovado" | "reprovado";
 }
@@ -33,24 +35,31 @@ interface EditAvaliacaoModalProps {
 }
 
 const EditAvaliacaoModal = ({ isOpen, onClose, aluno, onSave }: EditAvaliacaoModalProps) => {
-  const [notas, setNotas] = React.useState({
+  const [notas, setNotas] = useState({
     bim1: 0,
     bim2: 0,
     bim3: 0,
     bim4: 0,
     nt: 0,
   });
+  const [usarNT, setUsarNT] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (aluno) {
       setNotas(aluno.notas);
+      setUsarNT(aluno.usarNT || false);
     }
   }, [aluno]);
 
   const calcularMedia = (): number => {
     const { bim1, bim2, bim3, bim4, nt } = notas;
-    // Assumindo uma média simples para demonstração
-    return ((bim1 + bim2 + bim3 + bim4) / 4 + nt) / 2;
+    
+    // Se usar NT, incluir na média; caso contrário, apenas média dos bimestres
+    if (usarNT) {
+      return ((bim1 + bim2 + bim3 + bim4) / 4 + nt) / 2;
+    } else {
+      return (bim1 + bim2 + bim3 + bim4) / 4;
+    }
   };
 
   const handleNotaChange = (bimestre: keyof typeof notas, valor: string) => {
@@ -66,6 +75,7 @@ const EditAvaliacaoModal = ({ isOpen, onClose, aluno, onSave }: EditAvaliacaoMod
     const updatedAluno: Aluno = {
       ...aluno,
       notas: { ...notas },
+      usarNT,
       media: media,
       status: media >= 6 ? "aprovado" : "reprovado",
     };
@@ -157,6 +167,20 @@ const EditAvaliacaoModal = ({ isOpen, onClose, aluno, onSave }: EditAvaliacaoMod
                 className="bg-muted"
               />
             </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 pt-2">
+            <Checkbox 
+              id="usar-nt" 
+              checked={usarNT} 
+              onCheckedChange={(checked) => setUsarNT(!!checked)} 
+            />
+            <label
+              htmlFor="usar-nt"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Incluir Nota Trabalho na média
+            </label>
           </div>
         </div>
         

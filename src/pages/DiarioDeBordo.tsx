@@ -10,9 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DataTable } from "@/components/ui/data-table";
 import { Edit, Trash } from "lucide-react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
+import EditDiarioModal from "@/components/modal/EditDiarioModal";
 
 interface ConteudoRegistrado {
   id: number;
@@ -30,6 +31,10 @@ const DiarioDeBordo = () => {
   const [materia, setMateria] = useState<string>("");
   const [data, setData] = useState<string>("");
   const [conteudo, setConteudo] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConteudoId, setDeleteConteudoId] = useState<number | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedConteudo, setSelectedConteudo] = useState<ConteudoRegistrado | null>(null);
 
   const handleRegistrar = () => {
     if (!turma || !materia || !data || !conteudo) {
@@ -53,12 +58,30 @@ const DiarioDeBordo = () => {
   };
 
   const handleEdit = (id: number) => {
-    toast.info(`Editar conteúdo #${id}`);
+    const conteudoToEdit = conteudos.find(c => c.id === id);
+    if (conteudoToEdit) {
+      setSelectedConteudo(conteudoToEdit);
+      setEditModalOpen(true);
+    }
   };
 
   const handleDelete = (id: number) => {
-    setConteudos(conteudos.filter((c) => c.id !== id));
-    toast.success("Conteúdo removido com sucesso");
+    setDeleteConteudoId(id);
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = () => {
+    if (deleteConteudoId !== null) {
+      setConteudos(conteudos.filter((c) => c.id !== deleteConteudoId));
+      toast.success("Conteúdo removido com sucesso");
+      setDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleUpdateConteudo = (updatedConteudo: ConteudoRegistrado) => {
+    setConteudos(conteudos.map(c => 
+      c.id === updatedConteudo.id ? updatedConteudo : c
+    ));
   };
 
   const columns = [
@@ -162,13 +185,57 @@ const DiarioDeBordo = () => {
           <CardTitle>Conteúdos Registrados</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable
-            columns={columns}
-            data={conteudos}
-            keyExtractor={(conteudo) => conteudo.id}
-          />
+          {conteudos.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted">
+                  <tr>
+                    {columns.map((column) => (
+                      <th key={column.key} className="text-left p-4 font-medium text-muted-foreground">
+                        {column.header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {conteudos.map((item) => (
+                    <tr key={item.id} className="hover:bg-muted/50">
+                      {columns.map((column) => (
+                        <td key={`${item.id}-${column.key}`} className="p-4">
+                          {column.render 
+                            ? column.render(item)
+                            : column.key === 'data' 
+                              ? new Date(item[column.key as keyof ConteudoRegistrado] as string).toLocaleDateString('pt-BR') 
+                              : String(item[column.key as keyof ConteudoRegistrado])}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">Nenhum conteúdo registrado</p>
+          )}
         </CardContent>
       </Card>
+      
+      {/* Delete Confirmation */}
+      <DeleteConfirmation
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={confirmDelete}
+        title="Excluir conteúdo"
+        description="Tem certeza que deseja excluir este conteúdo? Esta ação não pode ser desfeita."
+      />
+      
+      {/* Edit Modal */}
+      <EditDiarioModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        conteudo={selectedConteudo}
+        onSave={handleUpdateConteudo}
+      />
     </div>
   );
 };

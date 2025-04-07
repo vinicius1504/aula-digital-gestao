@@ -1,12 +1,20 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 const Perfil = () => {
+  const [schoolInfo, setSchoolInfo] = useState({
+    name: "Escola Estadual Prof. João Silva",
+    address: "Rua das Flores, 123 - Centro",
+    city: "São Paulo",
+    state: "SP",
+    phone: "(11) 3333-4444"
+  });
+  
   const handleSalvar = () => {
     toast.success("Perfil atualizado com sucesso!");
   };
@@ -25,6 +33,58 @@ const Perfil = () => {
               <h2 className="text-xl font-bold">Maria Silva</h2>
               <p className="text-muted-foreground">Professora</p>
               <Button className="mt-4 w-full">Alterar Foto</Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Informações da Escola</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nome da Escola</label>
+                  <Input 
+                    value={schoolInfo.name} 
+                    onChange={(e) => setSchoolInfo({...schoolInfo, name: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Endereço</label>
+                  <Input 
+                    value={schoolInfo.address} 
+                    onChange={(e) => setSchoolInfo({...schoolInfo, address: e.target.value})}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Cidade</label>
+                    <Input 
+                      value={schoolInfo.city} 
+                      onChange={(e) => setSchoolInfo({...schoolInfo, city: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Estado</label>
+                    <Input 
+                      value={schoolInfo.state} 
+                      onChange={(e) => setSchoolInfo({...schoolInfo, state: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Telefone</label>
+                  <Input 
+                    value={schoolInfo.phone} 
+                    onChange={(e) => setSchoolInfo({...schoolInfo, phone: e.target.value})}
+                  />
+                </div>
+                
+                <Button onClick={handleSalvar} className="w-full">Salvar Escola</Button>
+              </form>
             </CardContent>
           </Card>
         </div>

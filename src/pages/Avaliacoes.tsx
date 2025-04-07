@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import StatusBadge from "@/components/shared/StatusBadge";
-import { toast } from "@/components/ui/sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
 import { Edit, Trash } from "lucide-react";
 import EditAvaliacaoModal from "@/components/modal/EditAvaliacaoModal";
@@ -26,6 +26,7 @@ interface Aluno {
     bim4: number;
     nt: number;
   };
+  usarNT: boolean;
   media: number;
   status: "aprovado" | "reprovado";
 }
@@ -35,6 +36,7 @@ const mockAlunos: Aluno[] = [
     id: 1,
     nome: "Felix Bastian",
     notas: { bim1: 0, bim2: 0, bim3: 0, bim4: 0, nt: 0 },
+    usarNT: false,
     media: 0,
     status: "reprovado",
   },
@@ -42,6 +44,7 @@ const mockAlunos: Aluno[] = [
     id: 2,
     nome: "Vinícius Leite",
     notas: { bim1: 0, bim2: 0, bim3: 0, bim4: 0, nt: 0 },
+    usarNT: false,
     media: 0,
     status: "reprovado",
   },
@@ -58,8 +61,12 @@ const Avaliacoes = () => {
 
   const calcularMedia = (aluno: Aluno): number => {
     const { bim1, bim2, bim3, bim4, nt } = aluno.notas;
-    // Assumindo uma média simples para demonstração
-    return ((bim1 + bim2 + bim3 + bim4) / 4 + nt) / 2;
+    // Se usar NT, incluir na média; caso contrário, apenas média dos bimestres
+    if (aluno.usarNT) {
+      return ((bim1 + bim2 + bim3 + bim4) / 4 + nt) / 2;
+    } else {
+      return (bim1 + bim2 + bim3 + bim4) / 4;
+    }
   };
 
   const handleNotaChange = (alunoId: number, bimestre: string, valor: string) => {
@@ -74,6 +81,25 @@ const Avaliacoes = () => {
         return {
           ...aluno,
           notas: novasNotas,
+          media: novaMedia,
+          status: novaMedia >= 6 ? "aprovado" as const : "reprovado" as const,
+        };
+      }
+      return aluno;
+    });
+
+    setAlunos(novosAlunos);
+  };
+  
+  const handleToggleNT = (alunoId: number, checked: boolean) => {
+    const novosAlunos = alunos.map((aluno) => {
+      if (aluno.id === alunoId) {
+        const usarNT = checked;
+        const novaMedia = calcularMedia({ ...aluno, usarNT });
+        
+        return {
+          ...aluno,
+          usarNT,
           media: novaMedia,
           status: novaMedia >= 6 ? "aprovado" as const : "reprovado" as const,
         };
@@ -125,7 +151,7 @@ const Avaliacoes = () => {
     <div className="animate-fade-in">
       <div className="flex justify-between items-center mb-6">
         <h1 className="page-title mb-0">Avaliações</h1>
-        <Button className="bg-green-600 hover:bg-green-700" onClick={handleExportar}>
+        <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800" onClick={handleExportar}>
           Exportar
         </Button>
       </div>
@@ -168,70 +194,83 @@ const Avaliacoes = () => {
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-4 font-medium text-muted-foreground">NOME</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">1º BIM.</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">2º BIM.</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">3º BIM.</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">4º BIM.</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">NT</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">MÉDIA</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">STATUS</th>
-                <th className="text-center p-4 font-medium text-muted-foreground">AÇÕES</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {alunos.map((aluno) => (
-                <tr key={aluno.id} className="hover:bg-muted/50">
-                  <td className="p-4">{aluno.nome}</td>
-                  {["bim1", "bim2", "bim3", "bim4", "nt"].map((bimestre) => (
-                    <td key={bimestre} className="p-4 text-center">
-                      <Input
-                        type="number"
-                        min="0"
-                        max="10"
-                        className="w-16 h-8 text-center mx-auto"
-                        value={(aluno.notas as any)[bimestre]}
-                        onChange={(e) => handleNotaChange(aluno.id, bimestre, e.target.value)}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="text-left p-4 font-medium text-muted-foreground">NOME</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">1º BIM.</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">2º BIM.</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">3º BIM.</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">4º BIM.</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">NT</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">USAR NT</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">MÉDIA</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">STATUS</th>
+                  <th className="text-center p-4 font-medium text-muted-foreground">AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {alunos.map((aluno) => (
+                  <tr key={aluno.id} className="hover:bg-muted/50">
+                    <td className="p-4">{aluno.nome}</td>
+                    {["bim1", "bim2", "bim3", "bim4", "nt"].map((bimestre) => (
+                      <td key={bimestre} className="p-4 text-center">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="10"
+                          className="w-16 h-8 text-center mx-auto"
+                          value={(aluno.notas as any)[bimestre]}
+                          onChange={(e) => handleNotaChange(aluno.id, bimestre, e.target.value)}
+                        />
+                      </td>
+                    ))}
+                    <td className="p-4 text-center">
+                      <Checkbox 
+                        checked={aluno.usarNT}
+                        onCheckedChange={(checked) => handleToggleNT(aluno.id, !!checked)}
+                        id={`usar-nt-${aluno.id}`}
+                        className="mx-auto"
                       />
                     </td>
-                  ))}
-                  <td className="p-4 text-center font-bold">{aluno.media.toFixed(1)}</td>
-                  <td className="p-4 text-center">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      aluno.status === "aprovado" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                    }`}>
-                      {aluno.status === "aprovado" ? "Aprovado" : "Reprovado"}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Button 
-                        size="sm"
-                        variant="ghost" 
-                        onClick={() => handleEdit(aluno)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant="ghost" 
-                        onClick={() => handleDelete(aluno.id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <td className="p-4 text-center font-bold">{aluno.media.toFixed(1)}</td>
+                    <td className="p-4 text-center">
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        aluno.status === "aprovado" ? 
+                          "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : 
+                          "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                      }`}>
+                        {aluno.status === "aprovado" ? "Aprovado" : "Reprovado"}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <Button 
+                          size="sm"
+                          variant="ghost" 
+                          onClick={() => handleEdit(aluno)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="ghost" 
+                          onClick={() => handleDelete(aluno.id)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
         <div className="p-4 border-t">
           <Button 
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
             onClick={handleSalvarTodos}
           >
             Salvar Todos
