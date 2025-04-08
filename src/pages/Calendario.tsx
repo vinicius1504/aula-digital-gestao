@@ -63,12 +63,6 @@ const Calendario = () => {
   const eventosRecentes = [...eventos].sort((a, b) => 
     new Date(a.data).getTime() - new Date(b.data).getTime()
   );
-
-  const eventosPorTipo = {
-    aula: eventos.filter(e => e.tipo === 'aula'),
-    avaliacao: eventos.filter(e => e.tipo === 'avaliacao'),
-    reuniao: eventos.filter(e => e.tipo === 'reuniao'),
-  };
   
   const handleAddEvent = () => {
     setSelectedEvent(null);
@@ -110,7 +104,7 @@ const Calendario = () => {
         <h1 className="page-title mb-0">Calendário</h1>
         <Button 
           onClick={handleAddEvent}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover-scale"
         >
           <Plus className="h-4 w-4" /> Adicionar evento
         </Button>
@@ -118,7 +112,7 @@ const Calendario = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3">
-          <Card>
+          <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
                 {MONTHS[mesAtual]} {anoAtual}
@@ -136,7 +130,7 @@ const Calendario = () => {
                 {/* Dias do mês */}
                 {dias.map((data, i) => (
                   <div key={i} className={`border rounded-md min-h-[100px] ${
-                    data.dia === 0 ? 'bg-gray-50 dark:bg-gray-800/50' : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
+                    data.dia === 0 ? 'bg-muted/30 dark:bg-muted/10' : 'hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors'
                   }`}>
                     {data.dia > 0 && (
                       <>
@@ -147,17 +141,17 @@ const Calendario = () => {
                           {data.eventos.map((evento, j) => (
                             <div 
                               key={j}
-                              className={`px-2 py-1 text-xs rounded truncate flex justify-between items-center ${getEventColor(evento.tipo)}`}
+                              className={`px-2 py-1 text-xs rounded truncate flex justify-between items-center group ${getEventColor(evento.tipo)}`}
                               title={evento.titulo}
                             >
                               <span className="truncate flex-1">{evento.titulo}</span>
-                              <div className="flex space-x-1 opacity-0 group-hover:opacity-100 ml-1">
+                              <div className="flex space-x-1 opacity-0 group-hover:opacity-100 ml-1 transition-opacity">
                                 <button 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditEvent(evento);
                                   }}
-                                  className="hover:text-blue-600 dark:hover:text-blue-400"
+                                  className="hover:text-primary"
                                 >
                                   <Edit className="h-3 w-3" />
                                 </button>
@@ -166,7 +160,7 @@ const Calendario = () => {
                                     e.stopPropagation();
                                     handleDeleteEvent(evento.id);
                                   }}
-                                  className="hover:text-red-600 dark:hover:text-red-400"
+                                  className="hover:text-destructive"
                                 >
                                   <Trash className="h-3 w-3" />
                                 </button>
@@ -184,7 +178,7 @@ const Calendario = () => {
         </div>
         
         <div className="space-y-6">
-          <Card>
+          <Card className="hover-glow">
             <CardHeader>
               <CardTitle className="text-sm flex justify-between items-center">
                 <span>Próximos Eventos</span>
@@ -194,7 +188,7 @@ const Calendario = () => {
               {eventosRecentes.length > 0 ? (
                 <ul className="space-y-3">
                   {eventosRecentes.map((evento, i) => (
-                    <li key={i} className="border-b pb-2 last:border-0 group">
+                    <li key={i} className="border-b pb-2 last:border-0 group hover:bg-muted/30 p-2 rounded-md transition-colors">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">{evento.titulo}</p>
@@ -206,12 +200,12 @@ const Calendario = () => {
                             evento.tipo === 'avaliacao' ? 'Avaliação' : 'Reunião'}
                           </span>
                         </div>
-                        <div className="flex space-x-2 opacity-0 group-hover:opacity-100">
+                        <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button 
                             variant="ghost" 
                             size="icon" 
                             onClick={() => handleEditEvent(evento)}
-                            className="h-8 w-8"
+                            className="h-8 w-8 hover:text-primary hover:scale-110 transition-transform"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -219,7 +213,7 @@ const Calendario = () => {
                             variant="ghost" 
                             size="icon" 
                             onClick={() => handleDeleteEvent(evento.id)}
-                            className="h-8 w-8"
+                            className="h-8 w-8 hover:text-destructive hover:scale-110 transition-transform"
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -231,98 +225,6 @@ const Calendario = () => {
               ) : (
                 <p className="text-center text-muted-foreground py-4">
                   Nenhum evento agendado
-                </p>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Aulas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {eventosPorTipo.aula.length > 0 ? (
-                <ul className="space-y-2">
-                  {eventosPorTipo.aula.map((evento, i) => (
-                    <li key={i} className="text-sm group">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="font-medium block">{evento.titulo}</span>
-                          <span className="block text-xs text-muted-foreground">
-                            {new Date(evento.data).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                        <div className="flex space-x-1 opacity-0 group-hover:opacity-100">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleEditEvent(evento)}
-                            className="h-6 w-6"
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleDeleteEvent(evento.id)}
-                            className="h-6 w-6"
-                          >
-                            <Trash className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center text-muted-foreground py-2 text-sm">
-                  Nenhuma aula agendada
-                </p>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Avaliações</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {eventosPorTipo.avaliacao.length > 0 ? (
-                <ul className="space-y-2">
-                  {eventosPorTipo.avaliacao.map((evento, i) => (
-                    <li key={i} className="text-sm group">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="font-medium block">{evento.titulo}</span>
-                          <span className="block text-xs text-muted-foreground">
-                            {new Date(evento.data).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                        <div className="flex space-x-1 opacity-0 group-hover:opacity-100">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleEditEvent(evento)}
-                            className="h-6 w-6"
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleDeleteEvent(evento.id)}
-                            className="h-6 w-6"
-                          >
-                            <Trash className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center text-muted-foreground py-2 text-sm">
-                  Nenhuma avaliação agendada
                 </p>
               )}
             </CardContent>

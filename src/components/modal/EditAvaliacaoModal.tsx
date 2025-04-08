@@ -89,10 +89,24 @@ const EditAvaliacaoModal = ({ isOpen, onClose, aluno, onSave }: EditAvaliacaoMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px] animate-fade-in">
         <DialogHeader>
           <DialogTitle>Editar Notas de {aluno.nome}</DialogTitle>
         </DialogHeader>
+        
+        <div className="flex items-center space-x-2 mb-4">
+          <Checkbox 
+            id="usar-nt" 
+            checked={usarNT} 
+            onCheckedChange={(checked) => setUsarNT(!!checked)} 
+          />
+          <label
+            htmlFor="usar-nt"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Incluir Nota Trabalho na média
+          </label>
+        </div>
         
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
@@ -167,20 +181,6 @@ const EditAvaliacaoModal = ({ isOpen, onClose, aluno, onSave }: EditAvaliacaoMod
                 className="bg-muted"
               />
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2 pt-2">
-            <Checkbox 
-              id="usar-nt" 
-              checked={usarNT} 
-              onCheckedChange={(checked) => setUsarNT(!!checked)} 
-            />
-            <label
-              htmlFor="usar-nt"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Incluir Nota Trabalho na média
-            </label>
           </div>
         </div>
         
