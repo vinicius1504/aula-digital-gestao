@@ -8,6 +8,8 @@ export interface User {
   email: string;
   role: "admin" | "teacher" | "staff";
   avatar?: string;
+  username?: string;
+  school?: string;
 }
 
 // Define mock users for testing
@@ -18,6 +20,8 @@ const mockUsers: User[] = [
     email: "admin@escola.com",
     role: "admin",
     avatar: "https://i.pravatar.cc/150?u=admin",
+    username: "admin",
+    school: "Escola Central",
   },
   {
     id: 2,
@@ -25,6 +29,8 @@ const mockUsers: User[] = [
     email: "professor@escola.com",
     role: "teacher",
     avatar: "https://i.pravatar.cc/150?u=teacher",
+    username: "professor",
+    school: "Escola Central",
   },
   {
     id: 3,
@@ -32,6 +38,8 @@ const mockUsers: User[] = [
     email: "secretaria@escola.com",
     role: "staff",
     avatar: "https://i.pravatar.cc/150?u=staff",
+    username: "secretaria",
+    school: "Escola Central",
   },
 ];
 
@@ -40,6 +48,7 @@ type AuthContextType = {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, school: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -94,6 +103,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (username: string, email: string, password: string, school: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Simulate API request delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check if user with this email already exists
+      const userExists = mockUsers.some(user => user.email === email || user.username === username);
+      
+      if (userExists) {
+        throw new Error("Usuário ou e-mail já cadastrado");
+      }
+      
+      // Create new user (in a real app, this would be saved to a database)
+      const newUser: User = {
+        id: mockUsers.length + 1,
+        name: username, // Using username as name for simplicity
+        username,
+        email,
+        role: "teacher", // Default role
+        school,
+      };
+      
+      // Add to mock users (this won't persist on page refresh, just for demo)
+      mockUsers.push(newUser);
+      
+      // Auto login the new user
+      setUser(newUser);
+      setIsAuthenticated(true);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao cadastrar");
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -107,6 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         error,
         login,
+        register,
         logout,
         isAuthenticated,
       }}

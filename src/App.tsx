@@ -20,6 +20,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Ajuda from "./pages/Ajuda";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useState } from "react";
@@ -38,6 +39,7 @@ const App = () => {
             <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route 
                   path="/" 
                   element={

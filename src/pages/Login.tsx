@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -71,7 +71,7 @@ const Login = () => {
             
             <Button 
               type="submit" 
-              className="w-full h-11 bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-500 hover:to-purple-600 dark:from-cyan-600 dark:to-purple-700"
+              className="w-full h-11 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 dark:from-blue-600 dark:to-purple-700 hover-scale"
               disabled={loading}
             >
               {loading ? (
@@ -91,21 +91,21 @@ const Login = () => {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full h-10 w-10 border-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900"
+                className="rounded-full h-10 w-10 border-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 hover-scale"
               >
                 <Facebook className="h-5 w-5 text-blue-600" />
               </Button>
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full h-10 w-10 border-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900"
+                className="rounded-full h-10 w-10 border-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 hover-scale"
               >
                 <Twitter className="h-5 w-5 text-blue-400" />
               </Button>
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="rounded-full h-10 w-10 border-gray-300 hover:bg-red-50 dark:hover:bg-red-900"
+                className="rounded-full h-10 w-10 border-gray-300 hover:bg-red-50 dark:hover:bg-red-900 hover-scale"
               >
                 <span className="text-red-500 font-bold">G</span>
               </Button>
@@ -113,13 +113,15 @@ const Login = () => {
           </div>
           
           <div className="mt-8 text-center">
-            <p className="text-center text-sm mb-2">Or Sign Up Using</p>
-            <Button 
-              variant="link" 
-              className="text-sm font-medium"
-            >
-              SIGN UP
-            </Button>
+            <p className="text-center text-sm mb-2">Não tem uma conta?</p>
+            <Link to="/register">
+              <Button 
+                variant="link" 
+                className="text-sm font-medium hover-scale"
+              >
+                CADASTRE-SE AGORA
+              </Button>
+            </Link>
           </div>
 
           <div className="mt-8 border-t pt-6 text-xs">
