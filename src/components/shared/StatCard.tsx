@@ -9,9 +9,13 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ value, label, className }) => {
   return (
-    <div className={`stat-card hover-scale hover-glow animate-fade-in transition-all duration-300 ${className}`}>
-      <div className="stat-number">{value}</div>
-      <div className="stat-label">{label}</div>
+    <div 
+      className={`stat-card rounded-lg border bg-card text-card-foreground p-4 shadow-sm 
+                 hover-scale hover-glow animate-fade-in transition-all duration-300 
+                 transform hover:-translate-y-1 hover:shadow-md ${className}`}
+    >
+      <div className="stat-number text-3xl font-bold">{value}</div>
+      <div className="stat-label text-sm text-muted-foreground">{label}</div>
     </div>
   );
 };
